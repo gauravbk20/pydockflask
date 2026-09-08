@@ -10,6 +10,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Step 4: Install system dependencies (optional, but good for security updates)
+RUN pip install --no-cache-dir flask
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
