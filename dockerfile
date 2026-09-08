@@ -1,26 +1,32 @@
-# Use an official lightweight Python image
-FROM python:3.11-slim
+# Step 1: Use the official Python 3.13 slim image
+FROM python:3.13-slim
 
-# Prevent Python from writing .pyc files to disk
-ENV PYTHONDONTWRITEBYTECODE=1
+# Step 2: Set production environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    FLASK_ENV=production
 
-# Prevent Python from buffering stdout and stderr
-ENV PYTHONUNBUFFERED=1
-
-# Set the working directory inside the container
+# Step 3: Set the working directory inside the container
 WORKDIR /app
 
-# Copy only the requirements file first to leverage Docker cache
-COPY requirements.txt /app/
+# Step 4: Install system dependencies (optional, but good for security updates)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install the application dependencies
+# Step 5: Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
-COPY . /app/
+# Step 6: Copy the rest of your application code
+COPY . .
 
-# Expose the port the app runs on
+# Step 7: Create a non-root user for security
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Step 8: Expose the port Gunicorn will run on
 EXPOSE 8000
 
-# Run the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+# Step 9: Run the application with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "app:app"]
