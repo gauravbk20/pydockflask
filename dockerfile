@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Step 5: Install Python dependencies
-COPY requirements.txt .
+COPY requirements.txt /app
+COPY main.py /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Step 6: Copy the rest of your application code
@@ -31,4 +32,4 @@ USER appuser
 EXPOSE 8000
 
 # Step 9: Run the application with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "app:app"]
+CMD ["python", "/myapp/main.py"]

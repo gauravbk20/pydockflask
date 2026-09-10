@@ -1,0 +1,38 @@
+steps:
+  # Step 1: Build the Docker image using the Docker cache
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '.'
+
+  # Step 2: Push the Docker image to Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Image'
+    args:
+      - 'push'
+      - '${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}'
+
+  # Step 3: Deploy the container image to Cloud Run
+  - name: 'gcr.io/://google.com'
+    id: 'Deploy to Cloud Run'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image=${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '--region=${_LOCATION}'
+      - '--allow-unauthenticated'
+
+# User-defined substitutions (overridable variables)
+substitutions:
+  _LOCATION: 'us-central1'
+  _REPOSITORY: 'my-docker-repo'
+  _IMAGE_NAME: 'my-app-image'
+  _SERVICE_NAME: 'pydockflasksvc'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
