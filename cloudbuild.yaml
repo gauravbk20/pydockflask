@@ -5,7 +5,7 @@ steps:
     args:
       - 'build'
       - '-t'
-      - '${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '${_LOCATION}-docker.pkg.dev/myproj-503403/${_REPOSITORY}/${_IMAGE_NAME}:${COMMIT_SHA}'
       - '.'
 
   # Step 2: Push the Docker image to Google Artifact Registry
@@ -13,25 +13,26 @@ steps:
     id: 'Push Image'
     args:
       - 'push'
-      - '${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '${_LOCATION}-docker.pkg.dev/myproj-503403/${_REPOSITORY}/${_IMAGE_NAME}:${COMMIT_SHA}'
 
   # Step 3: Deploy the container image to Cloud Run
-  - name: 'gcr.io/://google.com'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy to Cloud Run'
     entrypoint: 'gcloud'
     args:
       - 'run'
       - 'deploy'
       - '${_SERVICE_NAME}'
-      - '--image=${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '--image=${_LOCATION}-docker.pkg.dev/myproj-503403/${_REPOSITORY}/${_IMAGE_NAME}:${COMMIT_SHA}'
       - '--region=${_LOCATION}'
+      - '--platform-managed'   
       - '--allow-unauthenticated'
 
 # User-defined substitutions (overridable variables)
 substitutions:
   _LOCATION: 'us-central1'
   _REPOSITORY: 'my-docker-repo'
-  _IMAGE_NAME: 'my-app-image'
+  _IMAGE_NAME: 'pydockflaskimg'
   _SERVICE_NAME: 'pydockflasksvc'
 
 options:
