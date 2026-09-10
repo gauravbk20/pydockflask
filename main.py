@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-  return "Hello WC_1 to Python flask world got it !!"
+  return "Hello WC_1 to Python flask world-got it !!"
 
 if __name == '__main__':
   app.run(host='0.0.0.0',port=8080)
